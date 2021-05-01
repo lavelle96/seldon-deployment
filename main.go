@@ -25,7 +25,6 @@ func main() {
 	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
 	log.Println("Using kubeconfig file: ", kubeconfig)
 	log.Println("Using namespace: ", ns)
-	log.Println()
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
@@ -43,14 +42,15 @@ func main() {
 		panic(err)
 	}
 
-	seldonDeploymentController := seldon.NewSeldonDeploymentController(seldonClientSet, ns)
 	ctx := context.Background()
+	seldonDeploymentController := seldon.NewSeldonDeploymentController(seldonClientSet, ns)
 	err = seldonDeploymentController.CreateSeldonDeployment(ctx, seldonClientSet, ns, deployment)
 	if err != nil {
 		panic(err)
 	}
 
-	err = seldonDeploymentController.WaitUntilReplicaNumberIsReached(ctx, 1)
+	startingReplicas := int32(1)
+	err = seldonDeploymentController.WaitUntilReplicaNumberIsReached(ctx, startingReplicas)
 	if err != nil {
 		panic(err)
 	}
@@ -74,6 +74,7 @@ func main() {
 }
 
 func ParseDeploymentFromFile(path string, deployment *v1seldonapi.SeldonDeployment) error {
+	// Parses the yaml file at path provided into the deployment object provided
 	filename, err := filepath.Abs(path)
 	if err != nil {
 		return err

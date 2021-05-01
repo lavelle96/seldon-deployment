@@ -44,6 +44,8 @@ func (sD *SeldonDeploymentController) CreateSeldonDeployment(ctx context.Context
 }
 
 func (sD *SeldonDeploymentController) WaitUntilReplicaNumberIsReached(ctx context.Context, replicas int32) error {
+	// Polls the deployment for replica info. Once the deloyment has reached the replica number provided, the method exits
+	// Delay chosen as an arbitrary 4 seconds
 	const delay = 4 * time.Second
 	available := false
 	for !available {
@@ -70,22 +72,19 @@ func (sD *SeldonDeploymentController) WaitUntilReplicaNumberIsReached(ctx contex
 }
 
 func (sD *SeldonDeploymentController) UpdateNumberOfReplicas(ctx context.Context, replicas int32) error {
-	updatedDeployment, err := sD.seldonClientSet.MachinelearningV1().SeldonDeployments(sD.namespace).Get(ctx, sD.deployment.Name, metav1.GetOptions{})
-	if err != nil {
-		return err
-	}
-	updatedDeployment.Spec.Replicas = &replicas
-	for i := range updatedDeployment.Spec.Predictors {
-		updatedDeployment.Spec.Predictors[i].Replicas = &replicas
-		for j := range updatedDeployment.Spec.Predictors[i].ComponentSpecs {
-			updatedDeployment.Spec.Predictors[i].ComponentSpecs[j].Replicas = &replicas
+	// Updates the replicas for the deployment object at the Spec level and also at the Predictor level
+	// Initially an attempt was made to just update the replicas at the Spec level but it didn't have the desired effect.
+	sD.deployment.Spec.Replicas = &replicas
+	for i := range sD.deployment.Spec.Predictors {
+		sD.deployment.Spec.Predictors[i].Replicas = &replicas
+		for j := range sD.deployment.Spec.Predictors[i].ComponentSpecs {
+			sD.deployment.Spec.Predictors[i].ComponentSpecs[j].Replicas = &replicas
 		}
 	}
-	_, err = sD.seldonClientSet.MachinelearningV1().SeldonDeployments(sD.namespace).Update(ctx, updatedDeployment, metav1.UpdateOptions{})
+	_, err := sD.seldonClientSet.MachinelearningV1().SeldonDeployments(sD.namespace).Update(ctx, sD.deployment, metav1.UpdateOptions{})
 	if err != nil {
 		return err
 	} else {
-		sD.deployment = updatedDeployment
 		return nil
 	}
 }
