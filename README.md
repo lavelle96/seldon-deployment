@@ -8,6 +8,8 @@ In order to run this program, you must have:
 - seldon-core running on your kubernetes cluster.
 - A namespace created in kubernetes for the resource to be deployed in.
 
+Run `go mod vendor` to fetch the packages defined in go.mod
+
 ## Running the program
 
 This program takes two arguments:
