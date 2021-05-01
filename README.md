@@ -6,6 +6,7 @@ In order to run this program, you must have:
 
 - Access to a kubernetes cluster, minkube was used to test the program.
 - seldon-core running on your kubernetes cluster.
+- A namespace created in kubernetes for the resource to be deployed in.
 
 ## Running the program
 
@@ -21,21 +22,21 @@ Example usage:
 
 The program will
 
-1. Create the resource as defined in `filename` in the namespace `namespace`
-2. Wait until the resource has scaled to one replica
-3. Increase the number of replicas to two replicas
-4. Wait until the resource has scaled to two replicas
+1. Create the resource as defined in `filename` in the namespace `namespace`.
+2. Wait until the resource has scaled to one replica.
+3. Increase the number of replicas to two replicas.
+4. Wait until the resource has scaled to two replicas.
 5. Delete the resource.
 
 ## Files
 
-There are two go files: main.go and seldonDeploymentController.go
+There are two go files: main.go and seldonDeploymentController.go.
 
 ### main.go
 
-- Handles the parsing of the kubeconfig
-- Handles the parsing of the yaml definition
-- Orchestrates the creating, updating and deleting of the resource
+- Handles the parsing of the kubeconfig.
+- Handles the parsing of the yaml definition.
+- Orchestrates the creating, updating and deleting of the resource.
 
 ### seldonDeploymentController.go
 
@@ -48,7 +49,7 @@ There are two go files: main.go and seldonDeploymentController.go
 
 ## Event Logs
 
-The following logs were fetched using `kubectl describe seldondeployment <deployment name>` before the deployment was deleted
+The following logs were fetched using `kubectl describe seldondeployment <deployment name>` before the deployment was deleted.
 ![Event logs](./event_logs.png)
 
 ## Limitations
